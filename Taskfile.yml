@@ -31,7 +31,7 @@ vars:
   J: "{}"
   RUNTIMES: "golang,nodejs,php,python"
   COMMIT_ID: 
-    sh: git rev-parse --short HEA
+    sh: git rev-parse --short HEAD
 
 tasks:
 
