@@ -60,7 +60,8 @@ jobs:
           version: "lab:latest"
           driver: cloud
           endpoint: "sciabarracom/openserverless-builder"
-          use: true                 
+          use: true
+          buildkitd-config-inline: "max-parallelism=1"                 
       #- name: Set up QEMU
       #  uses: docker/setup-qemu-action@v3
       #- name: Set up Docker Buildx
