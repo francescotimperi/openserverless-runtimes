@@ -32,6 +32,7 @@ vars:
   RUNTIMES: "golang,nodejs,php,python"
   COMMIT_ID: 
     sh: git rev-parse --short HEAD
+  BUILDER: "--builder cloud-sciabarracom-openserverless-builder"  
 
 tasks:
 
@@ -81,8 +82,8 @@ tasks:
     cmds:
     - |
       if test -n "{{.PUSH}}"
-      then {{.DRY}} docker buildx build -t "{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
-      else {{.DRY}} docker buildx build -t "{{.COMMON}}" . --load
+      then {{.DRY}} docker buildx build -t "{{.COMMON}}" --platform linux/amd64,linux/arm64 "{{.BUILDER}}" . --push
+      else {{.DRY}} docker buildx build -t "{{.COMMON}}" "{{.BUILDER}}" . --load
       fi
 
   build-runtime:
@@ -93,8 +94,8 @@ tasks:
       BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
       RUNTIME="{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
       if test -n "{{.PUSH}}"
-      then {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
-      else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" . --load
+      then {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 "{{.BUILDER}}" . --push
+      else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" "{{.BUILDER}}" . --load
       fi
       echo "Built $RUNTIME"
 
