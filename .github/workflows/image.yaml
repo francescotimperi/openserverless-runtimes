@@ -59,7 +59,9 @@ jobs:
         with:
           version: "lab:latest"
           driver: cloud
-          endpoint: "sciabarracom/openserverless-builder"          
+          endpoint: "sciabarracom/openserverless-builder"
+      - name: Set cloud builder as default
+        run: docker buildx use cloud-sciabarracom-openserverless-builder --global                  
       #- name: Set up QEMU
       #  uses: docker/setup-qemu-action@v3
       #- name: Set up Docker Buildx
