@@ -30,9 +30,9 @@ You can  compile it with `go build -o proxy`.
 
 Tests are in openwhisk folder, test it with `cd opewhisk ; go test `
 
-Runtime  sources are under `runtimes/<plang>/<version>` (`<plang>` is programming languate)
+Runtime  sources are under `runtimes/<plang>/<version>` (`<plang>` is programming language)
 
-Special case is `runtime/common/<version>` that contains the proxy itseself, it is used as base image for the others and must be build first.
+Special case is `runtime/common/<version>` that contains the proxy itself, it is used as base image for the others and must be built first.
 
 # How to build images
 
