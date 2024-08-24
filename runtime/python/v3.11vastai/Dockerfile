@@ -20,11 +20,12 @@ FROM ${COMMON} AS builder
 
 FROM pytorch/pytorch:2.4.0-cuda11.8-cudnn9-runtime
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.12.2
-COPY --from=builder /go/bin/proxy /bin/proxy 
+COPY --from=builder /go/bin/proxy /bin/proxy
 
 # install zip
-RUN apt-get update && apt-get install -y python3-lxml python3-psycopg2 zip xpdf \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y python3-lxml python3-psycopg2 zip xpdf\
+    build-essential g++ ninja-build\
+    && rm -rf /var/lib/apt/lists/*  
 
 # Install common modules for python
 COPY requirements.txt requirements.txt
@@ -48,7 +49,10 @@ ENV OW_COMPILER=/bin/compile
 # home directory
 ENV HOME=/tmp
 
+RUN mkdir /nonexistent; chown nobody:root /nonexistent; chmod 0775 /nonexistent
+
 WORKDIR /action
 RUN chown nobody:root /action ; chmod 0775 /action
+
 USER nobody
 ENTRYPOINT ["/bin/proxy"]

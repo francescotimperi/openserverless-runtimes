@@ -141,7 +141,7 @@ tasks:
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
     - >
-      {{.DRY}} docker run -p 8080:8080 -ti "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+      {{.DRY}} docker run -p 8080:8080 -ti "{{.BASEIMG}}/openserverless-runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
 
   debug:
     desc: debug a runtime
@@ -152,7 +152,7 @@ tasks:
       {{.DRY}} docker run -p 8080:8080 -ti 
       --entrypoint=/bin/bash -v $PWD:/mnt 
       -e OW_COMPILER=/mnt/bin/compile 
-      "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+      "{{.BASEIMG}}/openserverless-runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
       
   init:
     desc: intialize a runtime with a test
@@ -164,3 +164,17 @@ tasks:
     desc: invoke a runtime listening in port 8080, optionally with J=<json>
     cmds:
     - python3 packages/invoke.py run '{{.J}}'
+
+  build-runtime-amd:
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/{{.RT}}/{{.VER}}"
+    cmds:
+    - |
+      BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
+      RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+      if test -n "{{.PUSH}}"
+      then 
+        {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push    
+      else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64 . --load 
+      fi
+      echo "Built $RUNTIME"     
