@@ -233,7 +233,7 @@ tasks:
 
   render-runtimes:
     silent: true
-    desc: generate a runtimes.txt file with all the runtime corresponding to the current TAG
+    desc: generate a runtimes.json file with all the runtime corresponding to the current TAG
     cmds:
       - |
         task render PUSH=y
