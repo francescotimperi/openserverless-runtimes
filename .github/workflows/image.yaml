@@ -291,28 +291,28 @@ jobs:
             cp runtimes.json $FOLDER/runtimes.json
             cd $FOLDER
 
-          # Setup the committers identity.
-          git config user.email "francesco.timperi@gmail.com"
-          git config user.name "Francesco Timperi Tiberi"
+            # Setup the committers identity.
+            git config user.email "francesco.timperi@gmail.com"
+            git config user.name "Francesco Timperi Tiberi"
 
-          # Create a new feature branch for the changes.
-          git checkout -b $BRANCH_NAME
+            # Create a new feature branch for the changes.
+            git checkout -b $BRANCH_NAME
 
-          # Commit the changes and push the feature branch to origin
-          git add .
-          git commit -m "chore: update runtime to $IMG_TAG"
-          git push origin $BRANCH_NAME
+            # Commit the changes and push the feature branch to origin
+            git add .
+            git commit -m "chore: update runtime to $IMG_TAG"
+            git push origin $BRANCH_NAME
 
-          # Store the PAT in a file that can be accessed by the
-          # GitHub CLI.
-          echo "${{ secrets.GITHUB_TOKEN }}" > token.txt
+            # Store the PAT in a file that can be accessed by the
+            # GitHub CLI.
+            echo "${{ secrets.GITHUB_TOKEN }}" > token.txt
 
-          # Authorize GitHub CLI for the current repository and
-          # create a pull-requests containing the updates.
-          gh auth login --with-token < token.txt
-          gh pr create \
-            --body "" \
-            --title "chore: update runtimes to $IMG_TAG" \
-            --head "$BRANCH_NAME" \
-            --base "main"            
+            # Authorize GitHub CLI for the current repository and
+            # create a pull-requests containing the updates.
+            gh auth login --with-token < token.txt
+            gh pr create \
+              --body "" \
+              --title "chore: update runtimes to $IMG_TAG" \
+              --head "$BRANCH_NAME" \
+              --base "main"            
 
