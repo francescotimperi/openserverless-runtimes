@@ -55,4 +55,4 @@ WORKDIR /action
 RUN chown nobody:root /action ; chmod 0775 /action
 
 USER nobody
-ENTRYPOINT ["/bin/proxy"]
+ENTRYPOINT ["/bin/proxy","-debug"]
