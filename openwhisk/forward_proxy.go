@@ -22,6 +22,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -30,6 +32,48 @@ import (
 
 	"github.com/google/uuid"
 )
+
+var message = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>
+Backend Unavailable
+</title>
+<style>
+body {
+	font-family: fantasy;
+	text-align: center;
+	padding-top: 20%;
+	background-color: #f1f6f8;
+}
+</style>
+</head>
+<body>
+<h1>503 Backend Unavailable</h1>
+<p>Sorry, we&lsquo;re having a brief problem. You can retry.</p>
+<p>If the problem persists, please get in touch.</p>
+</body>
+</html>`
+
+type ConnectionErrorHandler struct{ http.RoundTripper }
+
+func (c *ConnectionErrorHandler) RoundTrip(req *http.Request) (*http.Response, error) {
+	Debug("request %v", req)
+	resp, err := c.RoundTripper.RoundTrip(req)
+	if err != nil {
+		Debug("Error: backend request failed for %v: %v", req.RemoteAddr, err)
+	}
+	if _, ok := err.(*net.OpError); ok {
+		r := &http.Response{
+			StatusCode: http.StatusServiceUnavailable,
+			Body:       ioutil.NopCloser(bytes.NewBufferString(message)),
+		}
+		return r, nil
+	}
+	Debug("response %v", resp)
+	return resp, err
+}
 
 func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request) {
 	if ap.clientProxyData == nil {
@@ -65,7 +109,7 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 
 		req.URL.Scheme = ap.clientProxyData.ProxyURL.Scheme
 		req.URL.Host = ap.clientProxyData.ProxyURL.Host
-
+		req.Host = ap.clientProxyData.ProxyURL.Host
 	}
 
 	proxy := &httputil.ReverseProxy{Director: director}
@@ -123,6 +167,7 @@ func (ap *ActionProxy) ForwardInitRequest(w http.ResponseWriter, r *http.Request
 
 		req.URL.Scheme = ap.clientProxyData.ProxyURL.Scheme
 		req.URL.Host = ap.clientProxyData.ProxyURL.Host
+		req.Host = ap.clientProxyData.ProxyURL.Host
 	}
 
 	proxy := &httputil.ReverseProxy{Director: director}
@@ -130,6 +175,8 @@ func (ap *ActionProxy) ForwardInitRequest(w http.ResponseWriter, r *http.Request
 		Debug("Error forwarding init request: %v", err)
 		sendError(w, http.StatusBadGateway, "Error forwarding init request. Check logs for details.")
 	}
+
+	proxy.Transport = &ConnectionErrorHandler{http.DefaultTransport}
 
 	Debug("Forwarding init request to %s", ap.clientProxyData.ProxyURL.String())
 	proxy.ServeHTTP(w, r)

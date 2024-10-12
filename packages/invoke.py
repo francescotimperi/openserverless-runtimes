@@ -118,7 +118,7 @@ def init(args):
                 "main": main,
                 "env": processPayload(args.env)
             }
-        })
+    })
 
     print(r.text)
 
